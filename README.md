@@ -8,7 +8,7 @@
 | lp_selected_viewer.py | lp_selected_viewer.py 是 lp_gen_html.py 的精簡版，專門針對已從大資料集中挑選出來的 selected_plates_*.json 產生獨立的 HTML 檢視器，功能與介面幾乎相同（分頁網格、篩選條件、勾選匯出、Modal 比對），差異在於輸入來源直接是已篩選的小型 JSON 而非完整 results.json，HTML 檔名也會自動沿用輸入 JSON 的檔名（如 selected_plates_429_viewer.html），方便對不同批次的挑選結果各自產生獨立的檢視報告。 |
 | lp_yolo_label_gen.py | lp_yolo_label_gen.py 負責將挑選好的車牌記錄轉換成 YOLOv8-Pose 訓練標記，它從 selected_plates.json 取得目標 plate ID，再到 results.json 查找對應的四角點（優先使用 corrected_quad，也可退回原始 keypoints），將每個四角點正規化為 YOLO Pose 格式（class cx cy w h + 四個 keypoint 各含 x y visibility）並寫入 .txt 標記檔，同時產生 dataset.yaml 供 YOLOv8 直接讀取，最後輸出一份 Canvas-based HTML 視覺化檢視器，可在原圖上疊加原始 keypoints（紅）、校正後 quad（綠）及 bounding box（黃），逐張確認標記品質。python lp_yolo_label_gen.py --selected selected_plates_429.json --results results.json   |
 | lp_build_dataset.py | lp_build_dataset.py 負責將挑選好的車牌記錄打包成符合 YOLOv8 標準目錄結構的訓練資料集，它依原圖為單位將資料隨機分割為 train/val 兩份（預設 8:2），對每張圖複製原圖並產生對應的 YOLO Pose 標記檔（優先使用 corrected_quad，找不到才退回原始 keypoints），最後輸出 dataset.yaml，可直接用於 YOLOv8-Pose 訓練，是整條流程的最後一哩路。python lp_build_dataset.py   --json selected_plates_429_full.json   --output-dir ./lp_dataset/ |
-
+| lp_merge_dataset.py | lp_merge_dataset.py 負責將自建的車牌標記資料合併進現有的 Roboflow YOLOv8-Pose zip 包，流程是先解壓原始 zip（保留 train/valid/test 三個 split），再從 selected_plates.json 產生 YOLO Pose 標記並將原圖以 lp_ 前綴複製進指定 split（預設 train），最後更新 data.yaml 並重新打包成新的 zip，讓自建資料與 Roboflow 資料無縫合併，可直接上傳 SageMaker 或其他訓練平台使用。lp_merge_dataset.py     --zip lp-det-v3-job3.v1i.yolov8.zip     --json selected_plates_429_full.json     --output merged_lp_dataset.zip |
 
 
 
