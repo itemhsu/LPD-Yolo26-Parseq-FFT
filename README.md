@@ -7,7 +7,7 @@
 | lp_gen_html.py | lp_gen_html.py 是專門負責產生互動式 HTML 檢視器的獨立腳本，它從 results.json 讀取已有 corrected_ocr 欄位的車牌記錄，按垂直傾斜角度絕對值降序排列後，產生一份以 10 列網格分頁顯示的瀏覽介面。每張卡片並排顯示校正前後的縮圖（圖片以外部檔案方式引用 plate_images/，而非 Base64 內嵌，所以 HTML 比 lp_batch_process.py 輕量許多），點擊可開啟 Modal 比對角度、OCR 信心分數，以及 OCR 結果與原始檔名車牌號碼是否相符。此外還內建篩選條件（OCR 字元數、信心分數、角度範圍等）、逐筆勾選功能，以及將勾選結果匯出為 JSON 的 Export 按鈕，方便下游挑選優質樣本使用。  |
 | lp_selected_viewer.py | lp_selected_viewer.py 是 lp_gen_html.py 的精簡版，專門針對已從大資料集中挑選出來的 selected_plates_*.json 產生獨立的 HTML 檢視器，功能與介面幾乎相同（分頁網格、篩選條件、勾選匯出、Modal 比對），差異在於輸入來源直接是已篩選的小型 JSON 而非完整 results.json，HTML 檔名也會自動沿用輸入 JSON 的檔名（如 selected_plates_429_viewer.html），方便對不同批次的挑選結果各自產生獨立的檢視報告。 |
 | lp_yolo_label_gen.py | lp_yolo_label_gen.py 負責將挑選好的車牌記錄轉換成 YOLOv8-Pose 訓練標記，它從 selected_plates.json 取得目標 plate ID，再到 results.json 查找對應的四角點（優先使用 corrected_quad，也可退回原始 keypoints），將每個四角點正規化為 YOLO Pose 格式（class cx cy w h + 四個 keypoint 各含 x y visibility）並寫入 .txt 標記檔，同時產生 dataset.yaml 供 YOLOv8 直接讀取，最後輸出一份 Canvas-based HTML 視覺化檢視器，可在原圖上疊加原始 keypoints（紅）、校正後 quad（綠）及 bounding box（黃），逐張確認標記品質。python lp_yolo_label_gen.py --selected selected_plates_429.json --results results.json   |
-
+| lp_build_dataset.py | lp_build_dataset.py 負責將挑選好的車牌記錄打包成符合 YOLOv8 標準目錄結構的訓練資料集，它依原圖為單位將資料隨機分割為 train/val 兩份（預設 8:2），對每張圖複製原圖並產生對應的 YOLO Pose 標記檔（優先使用 corrected_quad，找不到才退回原始 keypoints），最後輸出 dataset.yaml，可直接用於 YOLOv8-Pose 訓練，是整條流程的最後一哩路。python lp_build_dataset.py   --json selected_plates_429_full.json   --output-dir ./lp_dataset/ |
 
 
 
