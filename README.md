@@ -16,6 +16,7 @@
 | cleaned_dataset.zip | 乾淨的合併後訓練數據集（訓練用這個） https://drive.google.com/file/d/1TuNa84vkC-3KvU_4fLqxy9RPTWc7dwzu/view?usp=sharing |
 | sagemaker_yolo26_cleaned_dataset.ipynb | 這個 Notebook 是完整的 SageMaker 端對端訓練與推論流程，針對 cleaned_dataset.zip（已合併 Roboflow 與自建校正資料）在 ml.g5.2xlarge 上啟動 YOLO26-Pose 訓練 Job，內含自動生成 train.py 與 requirements.txt、非阻塞式啟動 Estimator、從 CloudWatch Logs 即時串流日誌並動態繪製收斂曲線、訓練完成後下載 best.pt 等 artifacts，最後對 ./img 目錄的圖片執行 YOLO-Pose 偵測 + 透視投影 + PARSeq OCR 的完整推論管線，是整個車牌專案從訓練到驗證的總指揮 Notebook。 |
 | yolo26-train-1773128236.tgz | sagemaker_yolo26_cleaned_dataset.ipynb 訓練後的結果包  https://drive.google.com/file/d/1YDlkkOo_sQpPTB1ZESYj81XrZiC1QNm7/view?usp=drive_link |
+| best.pt | 最後模型，偵測使用這個 https://drive.google.com/file/d/1FpWTPragIS939_YNBSLhaUbxgnDIrjrg/view?usp=drive_link |
 
 
 
