@@ -15,6 +15,9 @@
 | lp_review_dataset.py | 這支腳本是一個三步驟的 YOLOv8-Pose 車牌資料集審查與清理工具：第一步用 --zip 解壓資料集後，自動掃描 train/valid/test 每個 split，檢查圖片與 label 是否配對（找出孤兒檔案）、驗證 label 的 17 欄格式（1 class + 4 bbox + 4×(x,y,vis) keypoints）是否正確且數值在 [0,1] 範圍內、bbox 是否過大或過小、四個 keypoint 是否構成凸四邊形（用外積判斷是否交叉）、圖片是否損壞或過小、以及透過 MD5 hash 偵測重複圖片，然後把所有結果（含圖片路徑、bbox、keypoint 座標、issue 清單）嵌入一個深色主題的互動式 HTML 審查頁面，支援 10×10 縮圖格線、分頁、依 split 與 issue 篩選、點擊開啟 modal 顯示 canvas 繪製的 bbox 虛線框與 TL/TR/BR/BL 四角 keypoint 連線、勾選標記要刪除的項目並匯出 delete_list.json 或 clean_list.json；第二步人工在瀏覽器中審查標記後；第三步再用 --delete delete_list.json 從原始 zip 中過濾掉被標記的圖片與 label，重新打包成乾淨的資料集 zip。 python lp_review_dataset.py     --zip merged_lp_dataset.zip     --delete delete_list_29.json     --output cleaned_dataset.zip |
 | cleaned_dataset.zip | 乾淨的合併後訓練數據集（訓練用這個） https://drive.google.com/file/d/1TuNa84vkC-3KvU_4fLqxy9RPTWc7dwzu/view?usp=sharing |
 | sagemaker_yolo26_cleaned_dataset.ipynb | 這個 Notebook 是完整的 SageMaker 端對端訓練與推論流程，針對 cleaned_dataset.zip（已合併 Roboflow 與自建校正資料）在 ml.g5.2xlarge 上啟動 YOLO26-Pose 訓練 Job，內含自動生成 train.py 與 requirements.txt、非阻塞式啟動 Estimator、從 CloudWatch Logs 即時串流日誌並動態繪製收斂曲線、訓練完成後下載 best.pt 等 artifacts，最後對 ./img 目錄的圖片執行 YOLO-Pose 偵測 + 透視投影 + PARSeq OCR 的完整推論管線，是整個車牌專案從訓練到驗證的總指揮 Notebook。 |
+| yolo26-train-1773128236.tgz | sagemaker_yolo26_cleaned_dataset.ipynb 訓練後的結果包  https://drive.google.com/file/d/1YDlkkOo_sQpPTB1ZESYj81XrZiC1QNm7/view?usp=drive_link |
+
+
 
 
 
