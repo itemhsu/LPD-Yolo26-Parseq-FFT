@@ -17,6 +17,7 @@
 | sagemaker_yolo26_cleaned_dataset.ipynb | 這個 Notebook 是完整的 SageMaker 端對端訓練與推論流程，針對 cleaned_dataset.zip（已合併 Roboflow 與自建校正資料）在 ml.g5.2xlarge 上啟動 YOLO26-Pose 訓練 Job，內含自動生成 train.py 與 requirements.txt、非阻塞式啟動 Estimator、從 CloudWatch Logs 即時串流日誌並動態繪製收斂曲線、訓練完成後下載 best.pt 等 artifacts，最後對 ./img 目錄的圖片執行 YOLO-Pose 偵測 + 透視投影 + PARSeq OCR 的完整推論管線，是整個車牌專案從訓練到驗證的總指揮 Notebook。 |
 | yolo26-train-1773128236.tgz | sagemaker_yolo26_cleaned_dataset.ipynb 訓練後的結果包  https://drive.google.com/file/d/1YDlkkOo_sQpPTB1ZESYj81XrZiC1QNm7/view?usp=drive_link |
 | best.pt | 最後模型，偵測使用這個 https://drive.google.com/file/d/1FpWTPragIS939_YNBSLhaUbxgnDIrjrg/view?usp=drive_link |
+| lp_detect_warp.py | 用 YOLO-Pose 模型對輸入圖片（單張或整個目錄）偵測車牌並取得四個角點像素座標，接著透過角度排序判斷車牌是水平或垂直方向，將四點歸位為 TL/TR/BR/BL 順序後，以 cv2.getPerspectiveTransform + INTER_LANCZOS4 做透視投影，把歪斜的車牌校正成 400×120 的標準矩形小圖存成 JPG，最後輸出一個 results.json 記錄每筆偵測的來源檔名、偵測信心、四角座標和角點信心值，方便下游接 OCR 或其他後處理時直接讀取使用。  python lp_detect_warp.py --model model/yolo26-train-1773128236/best.pt --image ./testImg/1111/BHZ8902_0.jpg |
 
 
 
